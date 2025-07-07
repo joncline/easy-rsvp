@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2024_11_15_112908) do
+ActiveRecord::Schema[7.2].define(version: 2025_07_07_055835) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
@@ -44,6 +44,30 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_15_112908) do
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
   end
 
+  create_table "custom_field_responses", force: :cascade do |t|
+    t.bigint "rsvp_id", null: false
+    t.bigint "custom_field_id", null: false
+    t.string "response_value", limit: 255
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["custom_field_id"], name: "index_custom_field_responses_on_custom_field_id"
+    t.index ["rsvp_id", "custom_field_id"], name: "index_custom_field_responses_on_rsvp_id_and_custom_field_id", unique: true
+    t.index ["rsvp_id"], name: "index_custom_field_responses_on_rsvp_id"
+  end
+
+  create_table "custom_fields", force: :cascade do |t|
+    t.bigint "event_id", null: false
+    t.string "field_name", limit: 255, null: false
+    t.string "field_type", null: false
+    t.boolean "required", default: false, null: false
+    t.text "options"
+    t.integer "position", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["event_id", "position"], name: "index_custom_fields_on_event_id_and_position"
+    t.index ["event_id"], name: "index_custom_fields_on_event_id"
+  end
+
   create_table "events", force: :cascade do |t|
     t.string "title", null: false
     t.date "date", null: false
@@ -70,5 +94,8 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_15_112908) do
   end
 
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "custom_field_responses", "custom_fields"
+  add_foreign_key "custom_field_responses", "rsvps"
+  add_foreign_key "custom_fields", "events"
   add_foreign_key "rsvps", "events"
 end

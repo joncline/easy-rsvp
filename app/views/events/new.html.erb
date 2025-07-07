@@ -22,5 +22,89 @@
 
   <br>
 
+  <div id="custom-fields-section">
+    <h4>Custom Fields (Optional)</h4>
+    <p class="text-muted">Add custom questions for your guests to answer when they RSVP.</p>
+    
+    <div id="custom-fields-container">
+      <!-- Custom fields will be added here dynamically -->
+    </div>
+    
+    <button type="button" id="add-custom-field" class="btn btn-outline-secondary btn-sm">
+      + Add Custom Field
+    </button>
+  </div>
+
+  <br><br>
+
   <%= f.button :submit, 'Create your event, for free!', class: 'btn-primary mr-2' %>
 <% end %>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  let fieldIndex = 0;
+  const container = document.getElementById('custom-fields-container');
+  const addButton = document.getElementById('add-custom-field');
+
+  addButton.addEventListener('click', function() {
+    addCustomField();
+  });
+
+  function addCustomField() {
+    const fieldHtml = `
+      <div class="custom-field-item border p-3 mb-3" data-index="${fieldIndex}">
+        <div class="row">
+          <div class="col-md-4">
+            <label>Field Name:</label>
+            <input type="text" name="custom_fields[${fieldIndex}][field_name]" class="form-control" placeholder="e.g., Dietary restrictions">
+          </div>
+          <div class="col-md-3">
+            <label>Field Type:</label>
+            <select name="custom_fields[${fieldIndex}][field_type]" class="form-control field-type-select">
+              <option value="text">Text</option>
+              <option value="dropdown">Dropdown</option>
+            </select>
+          </div>
+          <div class="col-md-3">
+            <label>&nbsp;</label>
+            <div class="form-check">
+              <input type="checkbox" name="custom_fields[${fieldIndex}][required]" value="1" class="form-check-input" id="required_${fieldIndex}">
+              <label class="form-check-label" for="required_${fieldIndex}">Required</label>
+            </div>
+          </div>
+          <div class="col-md-2">
+            <label>&nbsp;</label>
+            <button type="button" class="btn btn-danger btn-sm remove-field">Remove</button>
+          </div>
+        </div>
+        <div class="dropdown-options mt-2" style="display: none;">
+          <label>Dropdown Options (one per line):</label>
+          <textarea name="custom_fields[${fieldIndex}][options]" class="form-control options-textarea" rows="3" placeholder="Option 1&#10;Option 2&#10;Option 3"></textarea>
+        </div>
+      </div>
+    `;
+    
+    container.insertAdjacentHTML('beforeend', fieldHtml);
+    
+    // Add event listeners for the new field
+    const newField = container.lastElementChild;
+    const typeSelect = newField.querySelector('.field-type-select');
+    const optionsDiv = newField.querySelector('.dropdown-options');
+    const removeButton = newField.querySelector('.remove-field');
+    
+    typeSelect.addEventListener('change', function() {
+      if (this.value === 'dropdown') {
+        optionsDiv.style.display = 'block';
+      } else {
+        optionsDiv.style.display = 'none';
+      }
+    });
+    
+    removeButton.addEventListener('click', function() {
+      newField.remove();
+    });
+    
+    fieldIndex++;
+  }
+});
+</script>

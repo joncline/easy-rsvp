@@ -68,6 +68,15 @@
   <%= link_to "Edit", edit_event_admin_path(@event, @event.admin_token) %>
 </p>
 
+<% if @event.custom_fields.any? %>
+  <h3>Custom Fields</h3>
+  <ul>
+    <% @event.custom_fields.each do |custom_field| %>
+      <li><strong><%= custom_field.field_name %></strong> (<%= custom_field.field_type.titleize %><%= ', Required' if custom_field.required? %>)</li>
+    <% end %>
+  </ul>
+<% end %>
+
 <ul>
   <% Rsvp::RESPONSES.each do |response| %>
     <% rsvps = @rsvps.select { |rsvp| rsvp.response.to_sym == response } %>
@@ -78,6 +87,14 @@
         <% rsvps.each do |rsvp| %>
           <li>
             <%= rsvp.name %>
+            <% if @event.custom_fields.any? %>
+              <ul class="text-muted small">
+                <% @event.custom_fields.each do |custom_field| %>
+                  <% response_value = rsvp.custom_field_value_for(custom_field) %>
+                  <li><%= custom_field.field_name %>: <%= response_value.present? ? response_value : '<em>No response</em>'.html_safe %></li>
+                <% end %>
+              </ul>
+            <% end %>
             [<%= link_to 'edit', '#', data: { toggle: :modal, target: "#rsvp_#{rsvp.hashid}_modal" } %>]
           </li>
         <% end %>

@@ -18,6 +18,7 @@ class EventsController < ApplicationController
     @event = Event.new(event_params)
 
     if @event.save
+      create_custom_fields if custom_fields_params.present?
       redirect_to event_admin_path(@event, @event.admin_token)
     else
       set_placeholders
@@ -49,5 +50,32 @@ class EventsController < ApplicationController
 
   def hashid_from_param(parameterized_id)
     parameterized_id.to_s.split('-').first
+  end
+
+  def custom_fields_params
+    params[:custom_fields] || {}
+  end
+
+  def create_custom_fields
+    return if custom_fields_params.blank?
+    
+    custom_fields_params.each.with_index do |(key, field_data), index|
+      next if field_data[:field_name].blank? || field_data[:field_type].blank?
+      
+      custom_field = @event.custom_fields.build(
+        field_name: field_data[:field_name],
+        field_type: field_data[:field_type],
+        required: field_data[:required] == '1',
+        position: index
+      )
+      
+      if field_data[:field_type] == 'dropdown' && field_data[:options].present?
+        # Parse textarea input (one option per line)
+        options_array = field_data[:options].split("\n").map(&:strip).reject(&:blank?)
+        custom_field.options_array = options_array
+      end
+      
+      custom_field.save!
+    end
   end
 end

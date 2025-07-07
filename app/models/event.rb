@@ -2,6 +2,7 @@ class Event < ApplicationRecord
   include Hashid::Rails
 
   has_many :rsvps
+  has_many :custom_fields, -> { ordered }, dependent: :destroy
 
   before_create :set_admin_token
 
