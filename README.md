@@ -1,6 +1,7 @@
 # Easy RSVP
 
 An accountless app to organize events and invite people.
+This is a port from the original project: https://github.com/KevinBongart/easy-rsvp
 
 ## Features
 
